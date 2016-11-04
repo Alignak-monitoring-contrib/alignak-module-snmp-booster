@@ -3,7 +3,9 @@ Alignak SNMP booster Module
 
 *Alignak SNMP booster module*
 
+----------------------------------------------------------
 **WARNING: this module is still a very draft version !!!**
+----------------------------------------------------------
 
 Build status (stable release)
 -----------------------------
