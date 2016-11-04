@@ -1,0 +1,37 @@
+Source: shinken-mod-snmpbooster
+Section: net
+Priority: optional
+Maintainer: Shinken Debian packages maintainers <pkg-shinken-maint@lists.alioth.debian.org>
+Uploaders: Thibault Cohen <thibault.cohen@savoirfairelinux.com>, Mathieu Parent <sathieu@debian.org>
+Build-Depends: debhelper (>= 9), python, python-setuptools, python-sphinx, python-dev
+Standards-Version: 3.9.6
+XS-Python-Version: >= 2.5, << 2.8
+Vcs-Git: git://anonscm.debian.org/pkg-shinken/shinken-mod-snmpbooster.git
+Vcs-Browser: http://anonscm.debian.org/gitweb/?p=pkg-shinken/shinken-mod-snmpbooster.git;a=summary
+Homepage: http://shinken.io/package/snmpbooster
+
+Package: shinken-mod-snmpbooster
+Architecture: all
+Depends: ${misc:Depends}, shinken-common
+Breaks: shinken (<< 2~), shinken-common (<< 2~), shinken-core (<< 2~)
+Conflicts: shinken-module-snmpbooster
+Replaces: shinken-module-snmpbooster
+Description:  Flexible monitoring tool - SNMP module for Poller
+ SNMP module for Poller. This module makes SNMP requests
+ without any SNMP plugin.
+ .
+ Shinken is a new, Nagios compatible monitoring tool, written in Python. The
+ main goal of Shinken is to allow users to have a fully flexible architecture
+ for their monitoring system that can easily scale to large environments.
+
+Package: shinken-mod-snmpbooster-doc
+Section: doc
+Architecture: all
+Depends: ${misc:Depends}, libjs-jquery, libjs-underscore
+Description: Flexible monitoring tool - Documentation
+ Shinken SNMP module documentation.
+ .
+ Shinken is a new, Nagios compatible monitoring tool, written in Python. The
+ main goal of Shinken is to allow users to have a fully flexible architecture
+ for their monitoring system that can easily scale to large environments.
+
