@@ -1,3 +1,4 @@
+alignak_setup
 redis
 pysnmp
 pyasn1
