@@ -123,14 +123,14 @@ class SnmpBoosterScheduler(SnmpBooster):
         self.offset_mapping = {}
 
     @staticmethod
-    def get_frequence(chk):
+    def get_frequence(srv):
         """ return check_interval if state type is HARD
         else retry_interval if state type is SOFT
         """
-        if chk.ref.state_type == 'HARD':
-            return chk.ref.check_interval
+        if srv.state_type == 'HARD':
+            return srv.check_interval
         else:
-            return chk.ref.retry_interval
+            return srv.retry_interval
 
     @staticmethod
     def set_true_check(check, real=False):
@@ -144,25 +144,29 @@ class SnmpBoosterScheduler(SnmpBooster):
     def hook_get_new_actions(self, sche):
         """ Set if is a SNMP or Cache check """
         # Get all snmp checks and sort checks by tuple (host, interval)
-        check_by_host_inter = [((c.ref.host.get_name(),
-                                 self.get_frequence(c)
-                                 ),
-                                c)
-                               for c in sche.checks.values()
-                               if c.module_type == 'snmp_booster'
-                               and c.status == 'scheduled']
+        check_by_host_inter = []
+        for c in sche.checks.values():
+            if c.module_type == 'snmp_booster' and c.status == 'scheduled':
+                srv = sche.find_item_by_id(c.ref)
+                host = sche.find_item_by_id(srv.host)
+                check_by_host_inter.append((
+                    (host.get_name(), self.get_frequence(srv)),
+                    c,
+                    srv
+                ))
+
         # Sort checks by t_to_go
         check_by_host_inter.sort(key=lambda c: c[1].t_to_go)
         # Elect a check to be a real snmp check
-        for key, chk in check_by_host_inter:
+        for key, chk, srv in check_by_host_inter:
             # get frequency
             _, serv_interval = key
-            freq = serv_interval * chk.ref.interval_length
+            freq = serv_interval * srv.interval_length
             # Check if the key if already defined on last_check_mapping
             # and if the next check is scheduled after the saved
             # timestamps for the key (host, frequency)
             if key in self.last_check_mapping and self.last_check_mapping[key][0] + freq > chk.t_to_go:
-                if self.last_check_mapping[key][1] == chk.ref.id:
+                if self.last_check_mapping[key][1] == srv.id:
                     # We don't want to unelected an elected check
                     continue
                 # None elected
@@ -176,11 +180,11 @@ class SnmpBoosterScheduler(SnmpBooster):
                 # We remember the offset for a specific interval and move the elected (real) check to this time
                 if serv_interval not in self.offset_mapping:
                     self.offset_mapping[serv_interval] = 0
-                self.last_check_mapping[key] = (chk.t_to_go - chk.t_to_go % freq + self.offset_mapping[serv_interval], chk.ref.id)
+                self.last_check_mapping[key] = (chk.t_to_go - chk.t_to_go % freq + self.offset_mapping[serv_interval], srv.id)
                 self.offset_mapping[serv_interval] = (self.offset_mapping[serv_interval] + 1) % freq
             else:
                 self.last_check_mapping[key] = (self.last_check_mapping[key][0] + freq,
-                                                chk.ref.id)
+                                                srv.id)
                 chk.t_to_go = self.last_check_mapping[key][0]
             # Set Elected
             self.set_true_check(chk, True)
